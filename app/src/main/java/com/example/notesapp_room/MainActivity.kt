@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private val repository by lazy { NoteRepository(noteDao) }
 
     private lateinit var edNote:EditText
-    private lateinit var btnSubmit:TextView
+    private lateinit var btnSubmit:Button
     private lateinit var rvMain:RecyclerView
 
     private lateinit var notes:List<Note>
