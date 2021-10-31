@@ -4,8 +4,8 @@ import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private val repository by lazy { NoteRepository(noteDao) }
 
     private lateinit var edNote:EditText
-    private lateinit var btnSubmit:Button
+    private lateinit var btnSubmit: Button
     private lateinit var rvMain:RecyclerView
 
     private lateinit var notes:List<Note>
@@ -33,11 +33,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         notes= listOf()
 
         edNote=findViewById(R.id.edNotes)
         btnSubmit=findViewById(R.id.btnSubmit)
+
         btnSubmit.setOnClickListener {
+
             val note = edNote.text.toString()
             addNote(note)
             edNote.text.clear()
@@ -48,6 +51,11 @@ class MainActivity : AppCompatActivity() {
         rvMain=findViewById(R.id.rvMain)
         updateRV()
     }
+    private fun updateRV() {
+        rvMain.adapter=NoteAdapter(this,notes)
+        rvMain.layoutManager=LinearLayoutManager(this)
+    }
+
     private fun getItemsList() {
        CoroutineScope(IO).launch {
            val data =async{
@@ -55,24 +63,22 @@ class MainActivity : AppCompatActivity() {
            }.await()
            if (data.isNotEmpty()){
                notes=data
+
                updateRV()
            }else{
                Log.e("MainActivity","Unable to get data")
            }
        }
     }
-    private fun updateRV() {
-       rvMain.adapter=NoteAdapter(this,notes)
-        rvMain.layoutManager=LinearLayoutManager(this)
-    }
+
     private fun addNote(note: String) {
         CoroutineScope(IO).launch {
             repository.addNote(Note(0,note))
         }
     }
-    fun editNote(noteId:Int,noteText:String){
+   private fun editNote(noteId:Int,noteText:String){
         CoroutineScope(IO).launch {
-            repository.updateNote(Note(noteId,""))
+            repository.updateNote(Note(noteId,noteText))
         }
     }
     fun deleteNote(noteId:Int){
